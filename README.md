@@ -33,7 +33,10 @@
   * [On the News](#on-the-news)
   * [Features](#features)
   * [Roadmap](#roadmap)
+  * [How it all started](#how-it-all-started)
+  * [Awards](#awards)
   * [Issues](#issues)
+  * [Stack Overflow](#stack-overflow)
   * [Integrations](#integrations)
   * [Documentation](#documentation)
   * [License](#license)
@@ -80,7 +83,7 @@ Host your own Rocket.Chat server in four seconds flat:
 
 Easiest way to install a ready-to-run Rocket.Chat server on a Linux machine, VM, or VPS - [@j8r's   DPlatform](https://github.com/j8r/DPlatform), now in Alpha! 
 
-[![deploy](https://raw.githubusercontent.com/j8r/DPlatform/gh-pages/img/deploy.png)](https://j8r.github.io/DPlatform/)
+[![DP deploy](https://raw.githubusercontent.com/DFabric/DPlatform-ShellCore/gh-pages/img/deploy.png)](https://dfabric.github.io/DPlatform-ShellCore)
 
 ## IndieHosters
 Get your Rocket.Chat instance hosted in a "as a Service" style. You register and we manage it for you! (updates, backup...)
@@ -282,6 +285,10 @@ It is a great solution for communities and companies wanting to privately host t
 - File Sharing via P2P: [Issue #369](https://github.com/RocketChat/Rocket.Chat/issues/369), [Issue #370](https://github.com/RocketChat/Rocket.Chat/issues/370)
 - Anti-virus checking on file uploads: [Issue #757](https://github.com/RocketChat/Rocket.Chat/issues/757)
 
+## How it all started
+
+Read about [how it all started](http://osdelivers.blackducksoftware.com/2016/06/10/rocket-chat-hosted-chat-services/).
+
 ## Awards
 
 [![Black Duck Open Source Rookie of the Year](https://raw.githubusercontent.com/Sing-Li/bbug/master/images/blackducksm.png)](https://www2.blackducksoftware.com/news/releases/black-duck-announces-open-source-rookies-of-the-year)
@@ -289,6 +296,10 @@ It is a great solution for communities and companies wanting to privately host t
 ## Issues
 
 [Github Issues](https://github.com/RocketChat/Rocket.Chat/issues) are used to track todos, bugs, feature requests, and more.
+
+### Stack Overflow
+
+Please use the [Stack Overflow TAG](http://stackoverflow.com/questions/tagged/rocket.chat)
 
 ## Integrations
 
@@ -316,7 +327,6 @@ Checkout [Rocket.Chat documentation](https://rocket.chat/docs/)
 ## License
 
 Note that Rocket.Chat is distributed under the [MIT License](http://opensource.org/licenses/MIT).
-
 
 # Development
 
