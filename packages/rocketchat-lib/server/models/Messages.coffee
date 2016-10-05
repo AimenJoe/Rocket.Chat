@@ -1,6 +1,6 @@
 RocketChat.models.Messages = new class extends RocketChat.models._Base
 	constructor: ->
-		@_initModel 'message'
+		super('message')
 
 		@tryEnsureIndex { 'rid': 1, 'ts': 1 }
 		@tryEnsureIndex { 'ts': 1 }
@@ -152,8 +152,7 @@ RocketChat.models.Messages = new class extends RocketChat.models._Base
 
 		return @update query, update
 
-	setAsDeletedById: (_id) ->
-		me = RocketChat.models.Users.findOneById Meteor.userId()
+	setAsDeletedByIdAndUser: (_id, user) ->
 		query =
 			_id: _id
 
@@ -166,8 +165,8 @@ RocketChat.models.Messages = new class extends RocketChat.models._Base
 				attachments: []
 				editedAt: new Date()
 				editedBy:
-					_id: Meteor.userId()
-					username: me.username
+					_id: user._id
+					username: user.username
 
 		return @update query, update
 
@@ -257,12 +256,15 @@ RocketChat.models.Messages = new class extends RocketChat.models._Base
 		update =
 			$set:
 				attachments: attachments
-		console.log(query, update);
+
 		return @update query, update
 
 
 	# INSERT
 	createWithTypeRoomIdMessageAndUser: (type, roomId, message, user, extraData) ->
+		room = RocketChat.models.Rooms.findOneById roomId, { fields: { sysMes: 1 }}
+		if room?.sysMes is false
+			return
 		record =
 			t: type
 			rid: roomId
