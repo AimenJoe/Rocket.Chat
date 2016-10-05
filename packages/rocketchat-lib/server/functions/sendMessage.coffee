@@ -7,6 +7,9 @@ RocketChat.sendMessage = (user, message, room, upsert = false) ->
 
 	message.u = _.pick user, ['_id','username']
 
+	if not Match.test(message.msg, String)
+		message.msg = ''
+
 	message.rid = room._id
 
 	if not room.usernames?
@@ -18,9 +21,9 @@ RocketChat.sendMessage = (user, message, room, upsert = false) ->
 
 	message = RocketChat.callbacks.run 'beforeSaveMessage', message
 
+	# Avoid saving sandstormSessionId to the database
 	sandstormSessionId = null
 	if message.sandstormSessionId
-		# Persisting sessionId to the database is a bad idea.
 		sandstormSessionId = message.sandstormSessionId
 		delete message.sandstormSessionId
 
