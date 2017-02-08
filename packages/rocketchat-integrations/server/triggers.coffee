@@ -79,17 +79,36 @@ executeScript = (integration, method, params) ->
 		return
 
 	try
-		result = script[method](params)
+		sandbox =
+			_: _
+			s: s
+			console: console
+			Store:
+				set: (key, val) ->
+					return store[key] = val
+				get: (key) ->
+					return store[key]
+			HTTP: (method, url, options) ->
+				try
+					return {} =
+						result: HTTP.call method, url, options
+				catch e
+					return {} =
+						error: e
+			script: script
+			method: method
+			params: params
+		result = vm.runInNewContext('script[method](params)', sandbox, { timeout: 3000 })
 
 		logger.outgoing.debug '[Script method [', method, '] result of Trigger', integration.name, ':]'
 		logger.outgoing.debug result
 
 		return result
 	catch e
-		logger.incoming.error '[Error running Script in Trigger', integration.name, ':]'
-		logger.incoming.error integration.scriptCompiled.replace(/^/gm, '  ')
-		logger.incoming.error "[Stack:]"
-		logger.incoming.error e.stack.replace(/^/gm, '  ')
+		logger.outgoing.error '[Error running Script in Trigger', integration.name, ':]'
+		logger.outgoing.error integration.scriptCompiled.replace(/^/gm, '  ')
+		logger.outgoing.error "[Stack:]"
+		logger.outgoing.error e.stack.replace(/^/gm, '  ')
 		return
 
 
@@ -132,6 +151,7 @@ ExecuteTriggerUrl = (url, trigger, message, room, tries=0) ->
 			return
 
 	data =
+		message_id: message._id
 		token: trigger.token
 		channel_id: room._id
 		channel_name: room.name
@@ -235,14 +255,14 @@ ExecuteTriggerUrl = (url, trigger, message, room, tries=0) ->
 			if result?
 				logger.outgoing.error 'Error for trigger', trigger.name, 'to', url, result
 
-			if result.statusCode is 410
-				RocketChat.models.Integrations.remove _id: trigger._id
-				return
+				if result.statusCode is 410
+					RocketChat.models.Integrations.remove _id: trigger._id
+					return
 
-			if result.statusCode is 500
-				logger.outgoing.error 'Error [500] for trigger', trigger.name, 'to', url
-				logger.outgoing.error result.content
-				return
+				if result.statusCode is 500
+					logger.outgoing.error 'Error [500] for trigger', trigger.name, 'to', url
+					logger.outgoing.error result.content
+					return
 
 			if tries <= 6
 				# Try again in 0.1s, 1s, 10s, 1m40s, 16m40s, 2h46m40s and 27h46m40s

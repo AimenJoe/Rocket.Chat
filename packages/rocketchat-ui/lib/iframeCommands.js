@@ -19,12 +19,17 @@ const commands = {
 			}, event.origin);
 		};
 
-		if (typeof data.service === 'string') {
+		const siteUrl = Meteor.settings.Site_Url + '/';
+		if (typeof data.redirectUrl !== 'string' || !data.redirectUrl.startsWith(siteUrl)) {
+			data.redirectUrl = null;
+		}
+
+		if (typeof data.service === 'string' && window.ServiceConfiguration) {
 			const customOauth = ServiceConfiguration.configurations.findOne({service: data.service});
 
 			if (customOauth) {
 				const customLoginWith = Meteor['loginWith' + _.capitalize(customOauth.service, true)];
-				const customRedirectUri = window.OAuth._redirectUri(customOauth.service, customOauth);
+				const customRedirectUri = data.redirectUrl || siteUrl;
 				customLoginWith.call(Meteor, {'redirectUrl': customRedirectUri}, customOAuthCallback);
 			}
 		}
@@ -57,7 +62,7 @@ window.addEventListener('message', (e) => {
 		return;
 	}
 
-	let origins = RocketChat.settings.get('Iframe_Integration_receive_origin');
+	const origins = RocketChat.settings.get('Iframe_Integration_receive_origin');
 
 	if (origins !== '*' && origins.split(',').indexOf(e.origin) === -1) {
 		return console.error('Origin not allowed', e.origin);

@@ -1,3 +1,5 @@
+import moment from 'moment'
+
 Template.message.helpers
 	isBot: ->
 		return 'bot' if this.bot?
@@ -30,8 +32,11 @@ Template.message.helpers
 			return 'temp'
 	body: ->
 		return Template.instance().body
-	system: ->
+	system: (returnClass) ->
 		if RocketChat.MessageTypes.isSystemMessage(this)
+			if returnClass
+				return 'color-info-font-color'
+
 			return 'system'
 	edited: ->
 		return Template.instance().wasEdited
@@ -86,7 +91,7 @@ Template.message.helpers
 	hasOembed: ->
 		return false unless this.urls?.length > 0 and Template.oembedBaseWidget? and RocketChat.settings.get 'API_Embed'
 
-		return false unless this.u?.username not in RocketChat.settings.get('API_EmbedDisabledFor')?.split(',')
+		return false unless this.u?.username not in RocketChat.settings.get('API_EmbedDisabledFor')?.split(',').map (username) -> username.trim()
 
 		return true
 
@@ -125,7 +130,6 @@ Template.message.helpers
 
 	hideReactions: ->
 		return 'hidden' if _.isEmpty(@reactions)
-
 
 	actionLinks: ->
 		# remove 'method_id' and 'params' properties
@@ -228,4 +232,4 @@ Template.message.onViewRendered = (context) ->
 			else
 				if templateInstance?.firstNode && templateInstance?.atBottom is false
 					newMessage = templateInstance?.find(".new-message")
-					newMessage?.className = "new-message"
+					newMessage?.className = "new-message background-primary-action-color color-content-background-color "

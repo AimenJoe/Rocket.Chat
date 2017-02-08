@@ -41,6 +41,7 @@ RocketChat.settings.addGroup 'Accounts', ->
 		@add 'Accounts_AvatarSize', 200, { type: 'int', enableQuery: {_id: 'Accounts_AvatarResize', value: true} }
 		@add 'Accounts_AvatarStoreType', 'GridFS', { type: 'select', values: [ { key: 'GridFS', i18nLabel: 'GridFS' }, { key: 'FileSystem', i18nLabel: 'FileSystem' } ] }
 		@add 'Accounts_AvatarStorePath', '', { type: 'string', enableQuery: {_id: 'Accounts_AvatarStoreType', value: 'FileSystem'} }
+		@add 'Accounts_SetDefaultAvatar', true, { type: 'boolean' }
 
 RocketChat.settings.addGroup 'OAuth', ->
 
@@ -94,11 +95,11 @@ RocketChat.settings.addGroup 'General', ->
 	@add 'Language', '', { type: 'language', public: true }
 	@add 'Allow_Invalid_SelfSigned_Certs', false, { type: 'boolean' }
 	@add 'Favorite_Rooms', true, { type: 'boolean', public: true }
-	@add 'CDN_PREFIX', '', { type: 'string' }
+	@add 'CDN_PREFIX', '', { type: 'string', public: true }
 	@add 'Force_SSL', false, { type: 'boolean', public: true }
 	@add 'GoogleTagManager_id', '', { type: 'string', public: true }
-	@add 'GoogleSiteVerification_id', '', { type: 'string', public: false }
 	@add 'Bugsnag_api_key', '', { type: 'string', public: false }
+	@add 'Force_Disable_OpLog_For_Cache', false, { type: 'boolean', public: false }
 	@add 'Restart', 'restart_server', { type: 'action', actionText: 'Restart_the_server' }
 
 	@section 'UTF8', ->
@@ -165,6 +166,15 @@ RocketChat.settings.addGroup 'Email', ->
 		@add 'Accounts_UserAddedEmailSubject', '', { type: 'string', i18nLabel: "Subject", enableQuery: { _id: 'Accounts_UserAddedEmail_Customized', value: true }, i18nDefaultQuery: { _id: 'Accounts_UserAddedEmail_Customized', value: false } }
 		@add 'Accounts_UserAddedEmail', '', { type: 'code', code: 'text/html', multiline: true, i18nLabel: 'Body', i18nDescription: 'Accounts_UserAddedEmail_Description', enableQuery: { _id: 'Accounts_UserAddedEmail_Customized', value: true }, i18nDefaultQuery: { _id: 'Accounts_UserAddedEmail_Customized', value: false } }
 
+	@section 'Forgot Password', ->
+		@add 'Forgot_Password_Customized', false, { type: 'boolean', i18nLabel: 'Custom' }
+		@add 'Forgot_Password_Email_Subject', '', { type: 'string', i18nLabel: 'Subject', enableQuery: { _id: 'Forgot_Password_Customized', value: true }, i18nDefaultQuery: { _id: 'Forgot_Password_Customized', value: false } }
+		@add 'Forgot_Password_Email', '', { type: 'code', code: 'text/html', multiline: true, i18nLabel: 'Body', i18nDescription: 'Forgot_Password_Description', enableQuery: { _id: 'Forgot_Password_Customized', value: true }, i18nDefaultQuery: { _id: 'Forgot_Password_Customized', value: false } }
+
+	@section 'Verification', ->
+		@add 'Verification_Customized', false, { type: 'boolean', i18nLabel: 'Custom' }
+		@add 'Verification_Email_Subject', '', { type: 'string', i18nLabel: 'Subject', enableQuery: { _id: 'Verification_Customized', value: true }, i18nDefaultQuery: { _id: 'Verification_Customized', value: false } }
+		@add 'Verification_Email', '', { type: 'code', code: 'text/html', multiline: true, i18nLabel: 'Body', i18nDescription: 'Verification_Description', enableQuery: { _id: 'Verification_Customized', value: true }, i18nDefaultQuery: { _id: 'Verification_Customized', value: false } }
 
 RocketChat.settings.addGroup 'Message', ->
 	@add 'Message_AllowEditing', true, { type: 'boolean', public: true }
@@ -185,6 +195,8 @@ RocketChat.settings.addGroup 'Message', ->
 	@add 'Message_AudioRecorderEnabled', true, { type: 'boolean', public: true, i18nDescription: 'Message_AudioRecorderEnabledDescription' }
 	@add 'Message_GroupingPeriod', 300, { type: 'int', public: true, i18nDescription: 'Message_GroupingPeriodDescription' }
 	@add 'API_Embed', true, { type: 'boolean', public: true }
+	@add 'API_EmbedCacheExpirationDays', 30, { type: 'int', public: false }
+	@add 'API_Embed_clear_cache_now', 'OEmbedCacheCleanup', { type: 'action', actionText: 'clear', i18nLabel: 'clear_cache_now' }
 	@add 'API_EmbedDisabledFor', '', { type: 'string', public: true, i18nDescription: 'API_EmbedDisabledFor_Description' }
 	@add 'API_EmbedIgnoredHosts', 'localhost, 127.0.0.1, 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16', { type: 'string', i18nDescription: 'API_EmbedIgnoredHosts_Description' }
 	@add 'API_EmbedSafePorts', '80, 443', { type: 'string' }
@@ -199,9 +211,10 @@ RocketChat.settings.addGroup 'Message', ->
 RocketChat.settings.addGroup 'Meta', ->
 	@add 'Meta_language', '', { type: 'string' }
 	@add 'Meta_fb_app_id', '', { type: 'string' }
-	@add 'Meta_robots', '', { type: 'string' }
+	@add 'Meta_robots', 'INDEX,FOLLOW', { type: 'string' }
 	@add 'Meta_google-site-verification', '', { type: 'string' }
 	@add 'Meta_msvalidate01', '', { type: 'string' }
+	@add 'Meta_custom', '', { type: 'code', code: 'text/html', multiline: true }
 
 
 RocketChat.settings.addGroup 'Push', ->
@@ -244,6 +257,7 @@ RocketChat.settings.addGroup 'Layout', ->
 	@section 'User Interface', ->
 		@add 'UI_DisplayRoles', true, { type: 'boolean', public: true }
 		@add 'UI_Merge_Channels_Groups', true, { type: 'boolean', public: true }
+		@add 'UI_Use_Name_Avatar', false, { type: 'boolean', public: true }
 
 
 RocketChat.settings.addGroup 'Logs', ->
